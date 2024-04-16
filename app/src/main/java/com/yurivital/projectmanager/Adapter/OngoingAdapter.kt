@@ -1,36 +1,78 @@
 package com.yurivital.projectmanager.Adapter
 
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.yurivital.projectmanager.Domain.OngoingDomain
 import com.yurivital.projectmanager.R
 
 class OngoingAdapter(private val items: List<OngoingDomain>) :
     RecyclerView.Adapter<OngoingAdapter.Viewholder>() {
-     inner class Viewholder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        val title : TextView = itemView.findViewById(R.id.titleTxt)
-        val data : TextView = itemView.findViewById(R.id.dateTxt)
-        val progressBarPercent : TextView = itemView.findViewById(R.id.percentTxt)
-        val progressTxt : TextView = itemView.findViewById(R.id.progressTxt)
-        val progressBar : ProgressBar = itemView.findViewById(R.id.progressBar)
-        val pic : TextView = itemView.findViewById(R.id.titleTxt)
-        val layout : ConstraintLayout = itemView.findViewById(R.id.layout)
+    inner class Viewholder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val title: TextView = itemView.findViewById(R.id.titleTxt)
+        val data: TextView = itemView.findViewById(R.id.dateTxt)
+        val progressBarPercent: TextView = itemView.findViewById(R.id.percentTxt)
+        val progressTxt: TextView = itemView.findViewById(R.id.progressTxt)
+        val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
+        val pic: ImageView = itemView.findViewById(R.id.pic)
+        val layout: ConstraintLayout = itemView.findViewById(R.id.layout)
+
+        fun setTextcolors(colorsRes: Int) {
+            title.setTextColor(itemView.context.getColor(colorsRes))
+            data.setTextColor(itemView.context.getColor(colorsRes))
+            progressTxt.setTextColor(itemView.context.getColor(colorsRes))
+            progressBarPercent.setTextColor(itemView.context.getColor(colorsRes))
+            pic.setColorFilter(
+                ContextCompat.getColor(itemView.context, colorsRes),
+                PorterDuff.Mode.SRC_IN
+            )
+            progressBar.progressTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(itemView.context, colorsRes))
+        }
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Viewholder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.viewholder_ongoing, parent, false)
-        return  Viewholder(view)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.viewholder_ongoing, parent, false)
+        return Viewholder(view)
     }
 
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
-        TODO("Not yet implemented")
+        val item = items[position]
+
+        holder.title.text = item.title
+        holder.data.text = item.data
+        holder.progressBarPercent.text = "${item.progressPercent}%"
+
+        val drawableResourceId = holder.itemView.context.resources.getIdentifier(
+            item.picPath, "drawable", holder.itemView.context.packageName
+        )
+
+        Glide.with(holder.itemView.context).load(drawableResourceId).into(holder.pic)
+
+        holder.progressBar.progress = item.progressPercent
+
+        with(holder) {
+            if (position == 0) {
+                layout.setBackgroundResource(R.drawable.dark_bg)
+                setTextcolors(R.color.white)
+            } else {
+                layout.setBackgroundResource(R.drawable.light_purple_background)
+                setTextcolors(R.color.dark_purple)
+
+            }
+        }
     }
 }
